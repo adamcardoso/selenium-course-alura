@@ -12,40 +12,38 @@ import java.time.format.DateTimeFormatter;
 class LeiloesTest {
 
     private LeiloesPage paginaDeLeiloes;
-    private CadastroLeilaoPage paginaDeCadastroDeLeiloes;
+    private CadastroLeilaoPage paginaDeCadastroDeLeilao;
 
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() {
         LoginPage paginaDeLogin = new LoginPage();
-        paginaDeLogin.preencheFormularioDeLogin("fulano", "pass");
-
-        this.paginaDeLeiloes = paginaDeLogin.efetuarLogin();
-        this.paginaDeCadastroDeLeiloes = paginaDeLeiloes.carregarFormulario();
+        this.paginaDeLeiloes = paginaDeLogin.efetuarLogin("fulano", "pass");
+        this.paginaDeCadastroDeLeilao = paginaDeLeiloes.carregarFormulario();
     }
 
     @AfterEach
-    public void afterEach(){
+    public void afterEach() {
         this.paginaDeLeiloes.fechar();
-        this.paginaDeCadastroDeLeiloes.fechar();
+        this.paginaDeCadastroDeLeilao.fechar();
     }
 
     @Test
-    void deveriaCadastrarLeilao(){
+    void deveriaCadastrarLeilao() {
         String hoje = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String nome = "Leilao do dia "+ hoje;
-        String valor = "500.00";
+        String nomeLeilao = "Leilao do dia " + hoje;
+        String valorInicial = "500.00";
 
-        this.paginaDeLeiloes = paginaDeCadastroDeLeiloes.cadastrarLeilao(nome, valor, hoje);
+        this.paginaDeLeiloes = paginaDeCadastroDeLeilao.cadastrarLeilao(nomeLeilao, valorInicial, hoje);
 
-        Assertions.assertTrue(paginaDeLeiloes.isLeilaoCadastrado(nome, valor, hoje));
+        Assertions.assertTrue(paginaDeLeiloes.isLeilaoCadastrado(nomeLeilao, valorInicial, hoje));
     }
 
     @Test
-    void deveriaValidarCadastroDeLeilao() {
-        this.paginaDeLeiloes = paginaDeCadastroDeLeiloes.cadastrarLeilao("", "", "");
+    void deveriaExecutarValidacaoAoCadastrarLeilaoComDadosInvalidos() {
+        this.paginaDeLeiloes = paginaDeCadastroDeLeilao.cadastrarLeilao("", "", "");
 
-        Assertions.assertFalse(this.paginaDeCadastroDeLeiloes.isPaginaAtual());
-        Assertions.assertTrue(this.paginaDeLeiloes.isPaginaAtual());
-        Assertions.assertTrue(this.paginaDeCadastroDeLeiloes.isPaginaDeValidacaoVisiveis());
+        Assertions.assertFalse(paginaDeCadastroDeLeilao.isPaginaAtual());
+        Assertions.assertTrue(paginaDeLeiloes.isPaginaAtual());
+        Assertions.assertTrue(paginaDeCadastroDeLeilao.isMensagensDeValidacaoVisiveis());
     }
 }

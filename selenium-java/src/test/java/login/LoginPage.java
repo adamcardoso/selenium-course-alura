@@ -3,56 +3,41 @@ package login;
 import leiloes.LeiloesPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import utils.PageObject;
 
-public class LoginPage {
-    public static final String URL_LOGIN = "http://localhost:8080/login";
-    public static final String LOGIN_ERROR = "http://localhost:8080/login?error";
-    public static final String LEILOES_2 = "http://localhost:8080/leiloes/2";
-    private final WebDriver browser;
+public class LoginPage extends PageObject {
+    private static final String URL_LOGIN = "http://localhost:8080/login";
 
     public LoginPage() {
-        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
-        browser = new ChromeDriver();
-        browser.navigate().to(URL_LOGIN);
+        super(null);
+        this.browser.navigate().to(URL_LOGIN);
     }
 
-    public void fechar() {
-        this.browser.quit();
-    }
-
-    public void preencheFormularioDeLogin(String username, String password) {
+    private void preencherFormularioDeLogin(String username, String password) {
         browser.findElement(By.id("username")).sendKeys(username);
         browser.findElement(By.id("password")).sendKeys(password);
     }
 
-    public LeiloesPage efetuarLogin() {
+    public LeiloesPage efetuarLogin(String username, String password) {
+        this.preencherFormularioDeLogin(username, password);
         browser.findElement(By.id("login-form")).submit();
+
         return new LeiloesPage(browser);
     }
 
-    public boolean isPaginaDeLogin() {
-        return browser.getCurrentUrl().equals(URL_LOGIN);
-    }
-
-    public Object getNomeUsuarioLogado() {
+    public String getNomeUsuarioLogado() {
         try {
             return browser.findElement(By.id("usuario-logado")).getText();
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             return null;
         }
     }
 
-    public void navegaParaPaginaDeLances() {
-        this.browser.navigate().to(LEILOES_2);
+    public boolean isPaginaAtual() {
+        return browser.getCurrentUrl().contains(URL_LOGIN);
     }
 
-    public boolean contemTexto(String texto) {
-        return browser.getPageSource().contains(texto);
-    }
-
-    public boolean isPaginaDeLoginComDadosInvalidos() {
-        return browser.getCurrentUrl().equals(LOGIN_ERROR);
+    public boolean isMensagemDeLoginInvalidoVisivel() {
+        return browser.getPageSource().contains("Usuário e senha inválidos");
     }
 }
